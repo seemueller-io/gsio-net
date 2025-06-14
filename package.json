@@ -1,0 +1,6 @@
+{
+  "scripts": {
+    "clean": "packages/scripts/cleanup.sh",
+    "postinstall": "cargo build"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "name": "realscheme",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "wrangler dev",
+    "ws:client": "bun ./ws_client.ts",
+    "wscat": "wscat -c ws:///localhost:3004/ws",
+    "wscat:ping": "echo 'ping' | wscat -c ws:///localhost:3004/ws"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "wrangler": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  }
+}

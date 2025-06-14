@@ -1,0 +1,25 @@
+[package]
+name = "gsio-relay"
+version = "0.1.0"
+edition = "2024"
+authors = [ "geoffsee <>" ]
+
+[package.metadata.release]
+release = false
+
+# https://github.com/rustwasm/wasm-pack/issues/1247
+[package.metadata.wasm-pack.profile.release]
+wasm-opt = false
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+worker = { version = "0.5.0", features = ['http'] }
+worker-macros = { version = "0.5.0", features = ['http'] }
+console_error_panic_hook = { version = "0.1.1" }
+http = "1.1"
+futures = "0.3.31"
+
+[dev-dependencies]
+wasm-bindgen-test = "0.3.37"
