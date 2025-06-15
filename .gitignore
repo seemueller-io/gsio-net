@@ -2,3 +2,7 @@ target/
 node_modules/
 .wrangler/
 .idea/
+project/
+/prompt.md
+/todo
+/.toak-ignore

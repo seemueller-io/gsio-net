@@ -3,11 +3,12 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 
 
-gsio-net is a distributed ledger system with three main components:
+gsio-net is a distributed ledger system with four main components:
 
 1. **gsio-node**: A Rust-based Socket.IO server that handles real-time communication
 2. **gsio-relay**: A Rust-based WebSocket server implemented as a Cloudflare Worker
 3. **gsio-node-client**: A TypeScript client for connecting to the gsio-node server
+4. **gsio-wallet**: A Rust-based wallet library for managing keys, transactions, and balances
 
 ## Project Overview
 
@@ -271,6 +272,55 @@ The WebSocket client provides the following functions for participating in the p
   });
   ```
 
+### Using the Wallet
+
+The gsio-wallet library provides the following functions for managing wallets and transactions:
+
+- **Creating a new wallet**:
+  ```rust
+  use gsio_wallet::Wallet;
+
+  // Create a new empty wallet
+  let mut wallet = Wallet::new();
+
+  // Generate a new keypair and get the address
+  let address = wallet.generate_keypair().unwrap();
+  println!("New wallet address: {}", address);
+  ```
+
+- **Creating and signing a transaction**:
+  ```rust
+  use gsio_wallet::{Wallet, TransactionType};
+  use serde_json::json;
+
+  // Create a transaction
+  let mut transaction = wallet.create_transaction(
+      &sender_address,
+      &recipient_address,
+      100, // amount
+      10,  // fee
+      TransactionType::Transfer,
+      Some(json!({"memo": "Payment for services"}))
+  ).unwrap();
+
+  // Sign the transaction
+  wallet.sign_transaction(&mut transaction).unwrap();
+  ```
+
+- **Submitting a transaction**:
+  ```rust
+  // Submit the transaction to the network
+  let transaction_id = wallet.submit_transaction(&transaction).await.unwrap();
+  println!("Transaction submitted with ID: {}", transaction_id);
+  ```
+
+- **Checking account balance**:
+  ```rust
+  // Get account balance
+  let balance = wallet.get_balance(&address).unwrap();
+  println!("Account balance: {}", balance);
+  ```
+
 ## Development
 
 ### Project Structure
@@ -280,6 +330,8 @@ The WebSocket client provides the following functions for participating in the p
     - **src/ledger.rs**: Distributed ledger implementation
     - **src/p2p.rs**: Peer-to-peer networking implementation
   - **gsio-relay/**: WebSocket server implemented as a Cloudflare Worker
+  - **gsio-wallet/**: Wallet library for managing keys and transactions
+    - **src/lib.rs**: Wallet implementation with key management and transaction handling
 - **packages/**: Contains TypeScript packages
   - **gsio-node-client/**: Client for connecting to the gsio-node server
     - **src/listeners/node_listener.ts**: Socket.IO client for ledger operations
@@ -304,6 +356,17 @@ The p2p networking is implemented in `crates/gsio-node/src/p2p.rs` and provides 
 - **Connection Management**: Connections are managed using Socket.IO
 - **Ledger Synchronization**: Nodes can request and receive ledger entries from other nodes
 
+### Wallet System
+
+The wallet system is implemented in `crates/gsio-wallet/src/lib.rs` and provides the following features:
+
+- **Key Management**: Generate and store cryptographic keypairs (using Ed25519)
+- **Account Management**: Create and manage accounts with addresses derived from public keys
+- **Transaction Creation**: Create various types of transactions (Transfer, Stake, Unstake)
+- **Transaction Signing**: Sign transactions with the account's private key
+- **Balance Tracking**: Track account balances and transaction history
+- **Secure Storage**: Save and load wallet data securely
+
 ### Building Individual Components
 
 - **gsio-node**:
@@ -316,6 +379,12 @@ The p2p networking is implemented in `crates/gsio-node/src/p2p.rs` and provides 
   ```bash
   cd crates/gsio-relay
   cargo install -q worker-build && worker-build --release
+  ```
+
+- **gsio-wallet**:
+  ```bash
+  cd crates/gsio-wallet
+  cargo build
   ```
 
 - **gsio-node-client**:
@@ -343,13 +412,8 @@ The p2p networking is implemented in `crates/gsio-node/src/p2p.rs` and provides 
 - **gsio-node**: Use `RUST_LOG=debug cargo run` for verbose logging.
 - **gsio-relay**: Use `wrangler dev --verbose` for detailed logs.
 - **gsio-node-client**: Add `console.log` statements for debugging.
+- Write more tests
 
-### Cleaning the Project
-
-To clean the project, run:
-```bash
-npm run clean
-```
 
 ## Contributing
 
