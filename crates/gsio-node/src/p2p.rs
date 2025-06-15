@@ -5,6 +5,8 @@ use serde_json::{json, Value as JsonValue};
 use socketioxide::extract::{Data, SocketRef};
 use tracing::info;
 use uuid::Uuid;
+use iroh::{protocol::Router, Endpoint};
+use iroh_blobs::{store::{Store, mem}, net_protocol::Blobs};
 
 use crate::ledger::{LedgerEntry, SharedLedger};
 
@@ -70,6 +72,12 @@ pub struct P2PManager {
     pub ledger: SharedLedger,
     /// Connected sockets by node ID
     connected_nodes: Arc<Mutex<HashMap<String, SocketRef>>>,
+    /// Iroh endpoint for peer discovery and communication
+    endpoint: Option<Arc<Endpoint>>,
+    /// Iroh blobs for data storage and synchronization
+    blobs: Option<Arc<Blobs<mem::Store>>>,
+    /// Iroh router for handling connections
+    router: Option<Arc<Router>>,
 }
 
 impl P2PManager {
@@ -79,6 +87,27 @@ impl P2PManager {
             node_id,
             ledger,
             connected_nodes: Arc::new(Mutex::new(HashMap::new())),
+            endpoint: None,
+            blobs: None,
+            router: None,
+        }
+    }
+
+    /// Create a new p2p manager with iroh components
+    pub fn new_with_iroh(
+        node_id: String,
+        ledger: SharedLedger,
+        endpoint: Arc<Endpoint>,
+        blobs: Arc<Blobs<mem::Store>>,
+        router: Arc<Router>,
+    ) -> Self {
+        Self {
+            node_id,
+            ledger,
+            connected_nodes: Arc::new(Mutex::new(HashMap::new())),
+            endpoint: Some(endpoint),
+            blobs: Some(blobs),
+            router: Some(router),
         }
     }
 
@@ -327,6 +356,9 @@ impl Clone for P2PManager {
             node_id: self.node_id.clone(),
             ledger: self.ledger.clone(),
             connected_nodes: self.connected_nodes.clone(),
+            endpoint: self.endpoint.clone(),
+            blobs: self.blobs.clone(),
+            router: self.router.clone(),
         }
     }
 }
