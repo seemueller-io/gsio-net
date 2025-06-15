@@ -195,6 +195,7 @@ async fn on_peer_message(
 /// ---- Individual peer-message helpers ----
 async fn handle_peer_discovered(socket: SocketRef, p2p: Arc<P2PManager>, data: &JsonValue) {
     if let Some(peer_id) = data.get("peer_id").and_then(|id| id.as_str()) {
+        info!(peer_id = peer_id, "Peer discovered, initiating peering");
         p2p.ledger.add_known_node(peer_id.to_owned());
         socket
             .emit(
@@ -207,10 +208,12 @@ async fn handle_peer_discovered(socket: SocketRef, p2p: Arc<P2PManager>, data: &
 
 async fn handle_advertise(socket: SocketRef, p2p: Arc<P2PManager>, data: &JsonValue) {
     if let Some(peer_id) = data.get("peer_id").and_then(|id| id.as_str()) {
+        info!(peer_id = peer_id, "Received peer advertisement, establishing connection");
         p2p.ledger.add_known_node(peer_id.to_owned());
         socket
             .emit("peer_ack", &json!({ "type": "ack", "peer_id": p2p.node_id() }))
             .ok();
+        info!(peer_id = peer_id, "Sent acknowledgment to peer, connection established");
         socket
             .emit(
                 "peer_sync_request",
@@ -235,6 +238,10 @@ async fn handle_sync_request(socket: SocketRef, p2p: Arc<P2PManager>, _data: &Js
 }
 
 async fn handle_sync_response(_socket: SocketRef, p2p: Arc<P2PManager>, data: &JsonValue) {
+    if let Some(peer_id) = data.get("peer_id").and_then(|id| id.as_str()) {
+        info!(peer_id = peer_id, "Received sync response from peer, peering active");
+    }
+
     if let Some(entries_val) = data.get("entries") {
         if let Ok(entries) = serde_json::from_value::<Vec<LedgerEntry>>(entries_val.clone()) {
             for e in entries {

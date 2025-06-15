@@ -1,0 +1,28 @@
+# Rust build artifacts
+/target/
+**/*.rs.bk
+
+# Git directory
+.git/
+.github/
+.gitignore
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Node.js files (from packages directory)
+node_modules/
+npm-debug.log
+
+# Other unnecessary files
+*.md
+LICENSE
+*.log
+.DS_Store
+
+# Keep necessary files
+!Cargo.toml
+!Cargo.lock
