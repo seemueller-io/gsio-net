@@ -1,0 +1,86 @@
+version: '3.8'
+# GSIO-Net Docker Compose Configuration
+# 
+# This file defines a network of GSIO-Net nodes that can communicate with each other.
+# It creates three nodes, each exposing the API on a different host port:
+#   - node1: http://localhost:3001
+#   - node2: http://localhost:3002
+#   - node3: http://localhost:3003
+#
+# Usage:
+#   - Start the network: docker-compose up -d
+#   - View logs: docker-compose logs -f
+#   - Stop the network: docker-compose down
+#   - Stop and remove volumes: docker-compose down -v
+
+services:
+  # Node 1
+  node1:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: gsio-node1
+    ports:
+      - "3001:3000"  # Map to different host ports to avoid conflicts
+    volumes:
+      - node1-data:/home/appuser/data
+    networks:
+      - gsio-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # Node 2
+  node2:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: gsio-node2
+    ports:
+      - "3002:3000"
+    volumes:
+      - node2-data:/home/appuser/data
+    networks:
+      - gsio-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # Node 3
+  node3:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: gsio-node3
+    ports:
+      - "3003:3000"
+    volumes:
+      - node3-data:/home/appuser/data
+    networks:
+      - gsio-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+# Define volumes for persistent storage
+volumes:
+  node1-data:
+  node2-data:
+  node3-data:
+
+# Define a custom network for the nodes to communicate
+networks:
+  gsio-network:
+    driver: bridge
