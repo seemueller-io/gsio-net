@@ -1,5 +1,7 @@
 [workspace]
 members = [
     "crates/gsio-relay",
-    'crates/gsio-node'
+    'crates/gsio-node',
+    "crates/gsio-client",
+    "crates/gsio-wallet"
 ]
