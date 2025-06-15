@@ -123,18 +123,19 @@ impl P2PManager {
 
     /// Handle a new connection from another node
     pub fn handle_connection(&self, socket: SocketRef, data: JsonValue) {
-        info!(ns = socket.ns(), ?socket.id, "P2P node connected");
-
         // Extract the node ID from the connection data
         let node_id = match data.get("node_id") {
             Some(id) => id.as_str().unwrap_or("unknown").to_string(),
             None => "unknown".to_string(),
         };
 
+        info!(ns = socket.ns(), ?socket.id, node_id = node_id, "P2P node connected, establishing peering");
+
         // Add the node to the connected nodes
         {
             let mut connected_nodes = self.connected_nodes.lock().unwrap();
             connected_nodes.insert(node_id.clone(), socket.clone());
+            info!(peer_id = node_id, "Successfully peered with node");
         }
 
         // Add the node to the known nodes in the ledger
