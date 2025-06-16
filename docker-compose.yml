@@ -1,25 +1,25 @@
-version: '3.8'
-# GSIO-Net Docker Compose Configuration
-# 
-# This file defines a network of GSIO-Net nodes that can communicate with each other.
-# It creates three nodes, each exposing the API on a different host port:
-#   - node1: http://localhost:3001
-#   - node2: http://localhost:3002
-#   - node3: http://localhost:3003
-#
-# Usage:
-#   - Start the network: docker-compose up -d
-#   - View logs: docker-compose logs -f
-#   - Stop the network: docker-compose down
-#   - Stop and remove volumes: docker-compose down -v
-
 services:
+  relay:
+    container_name: gsio-relay
+    build:
+      context: ./crates/gsio-relay
+      dockerfile: Dockerfile
+      args:
+        CERT_DOMAIN: "gsio-relay."
+    networks:
+      - gsio-network
+    ports:
+      - "3340:3340"
+      - "7824:7824"
+
   # Node 1
   node1:
     build:
       context: .
       dockerfile: Dockerfile
     container_name: gsio-node1
+    environment:
+      RELAY_ADDRESS: "ws://gsio-relay:3340"
     ports:
       - "3001:3000"  # Map to different host ports to avoid conflicts
     volumes:
@@ -40,6 +40,8 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: gsio-node2
+    environment:
+      RELAY_ADDRESS: "ws://gsio-relay:3340"
     ports:
       - "3002:3000"
     volumes:
@@ -60,6 +62,8 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: gsio-node3
+    environment:
+      RELAY_ADDRESS: "ws://gsio-relay:3340"
     ports:
       - "3003:3000"
     volumes:

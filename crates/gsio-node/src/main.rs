@@ -6,7 +6,7 @@
 // - Each node is an autonomous sync unit
 
 use axum::{routing::get, Router};
-use iroh::{protocol::Router as IrohRouter, Endpoint};
+use iroh::{protocol::Router as IrohRouter, Endpoint, RelayMap, RelayMode, RelayUrl};
 use iroh_blobs::{
     net_protocol::Blobs,
     rpc::client::blobs::MemClient,
@@ -30,6 +30,9 @@ mod p2p;
 
 use ledger::{LedgerEntry, SharedLedger};
 use p2p::P2PManager;
+use url::Url;
+
+// assuming 'localhost' resolves to 127.0.0.1
 
 /// ========== Socket.io namespace helpers ==========
 fn register_root_namespace(io: &SocketIo, p2p: Arc<P2PManager>) {
@@ -355,8 +358,23 @@ async fn handle_blob_available(socket: SocketRef, p2p: Arc<P2PManager>, data: &J
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     tracing::subscriber::set_global_default(FmtSubscriber::default())?;
 
+
+    let relay_address = std::env::var("RELAY_ADDRESS").expect("RELAY_ADDRESS must be set");
+
+
+    let relay_url = RelayUrl::from_str(&*relay_address).unwrap();
+
+
+    let relays = RelayMap::from(relay_url);
+
+
+    
     // --- IROH SETUP --------------------------------------------------------
-    let endpoint = Endpoint::builder().discovery_n0().bind().await?;
+    let endpoint = Endpoint::builder().discovery_n0()
+        .relay_conn_protocol(iroh_relay::http::Protocol::Websocket)
+        .discovery_local_network()
+        .discovery_dht()
+        .relay_mode(RelayMode::Custom(relays)).bind().await?;
     // Concrete store type inferred from the builder
     let blobs = Arc::new(Blobs::memory().build(&endpoint));
     let router = IrohRouter::builder(endpoint.clone())
