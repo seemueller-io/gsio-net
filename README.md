@@ -4,12 +4,11 @@
 
 Warning: This API is unstable.
 
-## run a network 
-```yaml
+```shell
 docker compose build
 docker compose up
 ```
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the MIT License - See [LICENSE](./LICENSE) for details.

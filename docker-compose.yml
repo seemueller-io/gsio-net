@@ -87,4 +87,4 @@ volumes:
 # Define a custom network for the nodes to communicate
 networks:
   gsio-network:
-    driver: bridge
+    name: gsio-network
