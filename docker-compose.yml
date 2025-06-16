@@ -19,7 +19,7 @@ services:
       dockerfile: Dockerfile
     container_name: gsio-node1
     environment:
-      RELAY_ADDRESS: "ws://gsio-relay:3340"
+      RELAY_ADDRESS: "ws:///gsio-relay:3340"
     ports:
       - "3001:3000"  # Map to different host ports to avoid conflicts
     volumes:
@@ -41,7 +41,7 @@ services:
       dockerfile: Dockerfile
     container_name: gsio-node2
     environment:
-      RELAY_ADDRESS: "ws://gsio-relay:3340"
+      RELAY_ADDRESS: "ws:///gsio-relay:3340"
     ports:
       - "3002:3000"
     volumes:
@@ -63,7 +63,7 @@ services:
       dockerfile: Dockerfile
     container_name: gsio-node3
     environment:
-      RELAY_ADDRESS: "ws://gsio-relay:3340"
+      RELAY_ADDRESS: "ws:///gsio-relay:3340"
     ports:
       - "3003:3000"
     volumes:

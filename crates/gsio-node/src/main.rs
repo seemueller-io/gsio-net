@@ -373,7 +373,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let endpoint = Endpoint::builder().discovery_n0()
         .relay_conn_protocol(iroh_relay::http::Protocol::Websocket)
         .discovery_local_network()
-        .discovery_dht()
         .relay_mode(RelayMode::Custom(relays)).bind().await?;
     // Concrete store type inferred from the builder
     let blobs = Arc::new(Blobs::memory().build(&endpoint));
